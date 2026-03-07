@@ -1,23 +1,37 @@
-﻿using DotnetArchAnalyzer.Parsers;
+using DotnetArchAnalyzer.Core.Config;
+using DotnetArchAnalyzer.Core.Models;
+using DotnetArchAnalyzer.Core.Rules;
+using DotnetArchAnalyzer.Parsing;
 
-namespace DotnetArchAnalyzer.Analyzers
+namespace DotnetArchAnalyzer.Analyzers;
+
+public sealed class ArchitectureAnalyzer
 {
-    public sealed class ArchitectureAnalyzer
+    private readonly RoslynParser _parser;
+    private readonly IEnumerable<IArchRule> _rules;
+
+    public ArchitectureAnalyzer(RoslynParser parser, IEnumerable<IArchRule> rules)
     {
-        private readonly CSharpProjectParser _parser;
+        _parser = parser;
+        _rules = rules;
+    }
 
-        public ArchitectureAnalyzer(CSharpProjectParser parser)
+    public AnalysisResult Analyze(string projectPath)
+    {
+        var absolutePath = Path.GetFullPath(projectPath);
+        var (config, configPath) = ArchConfigLoader.Load(absolutePath);
+        var types = _parser.Parse(absolutePath);
+
+        var violations = _rules
+            .SelectMany(rule => rule.Analyze(types, config))
+            .ToList();
+
+        return new AnalysisResult
         {
-            _parser = parser;
-        }
-
-        public void Analyze(string projectPath)
-        {
-            Console.WriteLine($"Analyzing project: {projectPath}");
-
-            var files = _parser.GetCSharpFiles(projectPath);
-
-            Console.WriteLine($"Found {files.Count} C# files");
-        }
+            ProjectPath = absolutePath,
+            Types = types,
+            Violations = violations,
+            ConfigPath = configPath,
+        };
     }
 }

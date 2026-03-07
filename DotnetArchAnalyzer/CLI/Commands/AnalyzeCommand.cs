@@ -1,19 +1,32 @@
 ﻿using DotnetArchAnalyzer.Analyzers;
+using DotnetArchAnalyzer.Reporting;
+using Spectre.Console;
 
-namespace DotnetArchAnalyzer.CLI.Commands
+namespace DotnetArchAnalyzer.CLI.Commands;
+
+public sealed class AnalyzeCommand
 {
-    public class AnalyzeCommand
+    private readonly ArchitectureAnalyzer _analyzer;
+    private readonly ConsoleReporter _reporter;
+
+    public AnalyzeCommand(ArchitectureAnalyzer analyzer, ConsoleReporter reporter)
     {
-        private readonly ArchitectureAnalyzer _analyzer;
+        _analyzer = analyzer;
+        _reporter = reporter;
+    }
 
-        public AnalyzeCommand(ArchitectureAnalyzer analyzer)
-        {
-            _analyzer = analyzer;
-        }
+    public int Execute(string path)
+    {
+        Core.Models.AnalysisResult? result = null;
 
-        public void Execute(string path)
-        {
-            _analyzer.Analyze(path);
-        }
+        AnsiConsole.Status()
+            .Spinner(Spinner.Known.Dots)
+            .Start($"Analyzing [bold]{Markup.Escape(path)}[/]...", _ =>
+            {
+                result = _analyzer.Analyze(path);
+            });
+
+        _reporter.Report(result!);
+        return result!.ErrorCount > 0 ? 1 : 0;
     }
 }
