@@ -51,13 +51,27 @@ public sealed class ArchConfig
         },
         Rules = new()
         {
-            ["arch/layer-violation"]    = "warning",
-            ["arch/circular-dependency"] = "error",
-            ["arch/high-coupling"]       = "warning",
+            ["arch/layer-violation"]       = "warning",
+            ["arch/circular-dependency"]   = "error",
+            ["arch/high-coupling"]         = "warning",
+            ["style/interface-prefix"]     = "warning",
+            ["style/async-suffix"]         = "warning",
+            ["style/no-empty-catch"]       = "warning",
+            ["style/namespace-match"]      = "warning",
+            ["complexity/method-length"]   = "warning",
+            ["complexity/class-length"]    = "warning",
+            ["complexity/parameter-count"] = "warning",
+            ["complexity/cyclomatic"]      = "warning",
+            ["complexity/nesting-depth"]   = "warning",
         },
         Thresholds = new()
         {
-            ["arch/high-coupling"] = 10,
+            ["arch/high-coupling"]         = 10,
+            ["complexity/method-length"]   = 30,
+            ["complexity/class-length"]    = 300,
+            ["complexity/parameter-count"] = 5,
+            ["complexity/cyclomatic"]      = 10,
+            ["complexity/nesting-depth"]   = 4,
         }
     };
 }

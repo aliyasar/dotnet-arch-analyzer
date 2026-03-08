@@ -1,0 +1,65 @@
+{
+  // dotnetarch.json — architecture rules for dotnet-arch
+  //
+  // Layer keywords are matched against namespace segments (case-insensitive).
+  // Example: "MyApp.Services.UserService" matches on the "services" segment.
+  //
+  // Supported layer names: domain, application, infrastructure, presentation
+  // Aliases also accepted: web, ui, api (→ presentation), data, persistence (→ infrastructure), core (→ domain)
+  //
+  // Customize to fit your project's naming conventions.
+  "layers": {
+    "domain":         ["models", "entities", "dto", "exceptions"],
+    "application":    ["services", "handlers"],
+    "infrastructure": ["repositories", "context", "dataaccess"],
+    "web":            ["controllers"]
+  },
+
+  // Rule severity: "error" | "warning" | "info" | "off"
+  "rules": {
+    // Architecture rules
+    "arch/layer-violation":       "warning",
+    "arch/circular-dependency":   "error",
+    "arch/high-coupling":         "warning",
+
+    // Style / naming conventions
+    "style/interface-prefix":     "warning",
+    "style/async-suffix":         "warning",
+    "style/no-empty-catch":       "warning",
+    "style/namespace-match":      "warning",
+
+    // Complexity / size metrics
+    "complexity/method-length":   "warning",
+    "complexity/class-length":    "warning",
+    "complexity/parameter-count": "warning",
+    "complexity/cyclomatic":      "warning",
+    "complexity/nesting-depth":   "warning"
+  },
+
+  // Numeric thresholds for rules that support them
+  //
+  //  Set any integer value you like — the table below is a reference guide only.
+  //
+  //  Legend
+  //  ──────
+  //  Strict   = Clean Code / Uncle Bob style — small, focused, easy to test
+  //  Moderate = Pragmatic default — fits most real-world codebases
+  //  Lenient  = Legacy-friendly — use when migrating an older codebase
+  //
+  //  Rule                        What is counted               Strict  Moderate  Lenient
+  //  ──────────────────────────────────────────────────────────────────────────────────────
+  //  arch/high-coupling          # of namespaces depended on       5       10       15
+  //  complexity/method-length    # of lines in a method           20       40       80
+  //  complexity/class-length     # of lines in a class           150      300      500
+  //  complexity/parameter-count  # of parameters in a method       3        5        8
+  //  complexity/cyclomatic       # of decision paths (if/for/…)    5       10       20
+  //  complexity/nesting-depth    # of nested block levels          2        4        6
+  "thresholds": {
+    "arch/high-coupling":         10,
+    "complexity/method-length":   60,
+    "complexity/class-length":    300,
+    "complexity/parameter-count": 5,
+    "complexity/cyclomatic":      15,
+    "complexity/nesting-depth":   4
+  }
+}

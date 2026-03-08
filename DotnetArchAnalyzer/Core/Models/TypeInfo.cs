@@ -9,7 +9,8 @@ public sealed record TypeInfo(
     string FilePath,
     TypeKind Kind,
     IReadOnlyList<string> ReferencedNamespaces,
-    int Line)
+    int Line,
+    int LineCount)
 {
     /// <summary>
     /// Number of namespace-level dependencies (using directives).

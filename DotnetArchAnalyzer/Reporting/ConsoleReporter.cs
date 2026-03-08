@@ -20,7 +20,11 @@ public sealed class ConsoleReporter
 
         PrintViolationsByRule(result);
 
+        PrintRuleSummary(result);
+
         PrintSummaryLine(result);
+
+        EmitGitHubAnnotations(result);
     }
 
     private static void PrintHeader(AnalysisResult result)
@@ -33,7 +37,18 @@ public sealed class ConsoleReporter
 
         AnsiConsole.WriteLine();
 
-        AnsiConsole.MarkupLine("[bold white]Architecture Analysis[/]");
+        var gradeColor = result.Grade switch
+        {
+            "A" => "green",
+            "B" => "chartreuse2",
+            "C" => "yellow",
+            "D" => "darkorange",
+            _   => "red"
+        };
+
+        AnsiConsole.MarkupLine(
+            $"[bold white]Architecture Analysis[/]  " +
+            $"[grey]Grade:[/] [{gradeColor} bold]{result.Grade}[/]  [grey]{result.Score}/100[/]");
         AnsiConsole.MarkupLine($"[grey]{new string('─', 64)}[/]");
 
         var depCount = CountInternalDependencies(result.Types);
@@ -43,6 +58,7 @@ public sealed class ConsoleReporter
         table.AddColumn(new TableColumn("").RightAligned());
         table.AddColumn(new TableColumn(""));
         table.AddRow("[grey]Types[/]",        $"{result.Types.Count}");
+        table.AddRow("[grey]Methods[/]",      $"{result.Methods.Count}");
         table.AddRow("[grey]Dependencies[/]", $"{depCount}");
         table.AddRow("[grey]Violations[/]",   $"[{violationColor}]{result.Violations.Count}[/]");
         AnsiConsole.Write(table);
@@ -101,6 +117,34 @@ public sealed class ConsoleReporter
         }
     }
 
+    private static void PrintRuleSummary(AnalysisResult result)
+    {
+        var byRule = result.Violations
+            .GroupBy(v => v.RuleId)
+            .OrderBy(g => g.Key)
+            .ToList();
+
+        if (!byRule.Any()) return;
+
+        AnsiConsole.MarkupLine("[grey]Rule summary[/]");
+        AnsiConsole.MarkupLine($"[grey]{new string('─', 64)}[/]");
+
+        foreach (var group in byRule)
+        {
+            var errors   = group.Count(v => v.Severity == ViolationSeverity.Error);
+            var warnings = group.Count(v => v.Severity == ViolationSeverity.Warning);
+
+            var parts = new List<string>();
+            if (errors   > 0) parts.Add($"[red]{errors} {Plural(errors, "error")}[/]");
+            if (warnings > 0) parts.Add($"[yellow]{warnings} {Plural(warnings, "warning")}[/]");
+
+            AnsiConsole.MarkupLine(
+                $"  [grey]{Markup.Escape(group.Key),-32}[/]  {string.Join(", ", parts)}");
+        }
+
+        AnsiConsole.WriteLine();
+    }
+
     private static void PrintSummaryLine(AnalysisResult result)
     {
         var total = result.Violations.Count;
@@ -131,4 +175,33 @@ public sealed class ConsoleReporter
 
     private static string Plural(int count, string word) =>
         count == 1 ? word : $"{word}s";
+
+    /// <summary>
+    /// Emits GitHub Actions workflow commands so violations appear as inline annotations on PRs.
+    /// Only runs when the GITHUB_ACTIONS environment variable is "true".
+    /// Format: ::error file={file},line={line}::{message}
+    /// </summary>
+    private static void EmitGitHubAnnotations(AnalysisResult result)
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("GITHUB_ACTIONS"), "true",
+                StringComparison.OrdinalIgnoreCase))
+            return;
+
+        foreach (var v in result.Violations)
+        {
+            var level = v.Severity == ViolationSeverity.Error ? "error" : "warning";
+            var file  = v.FilePath != null
+                ? MakeRelative(v.FilePath, result.ProjectPath)
+                : string.Empty;
+
+            var location = file.Length > 0
+                ? (v.Line.HasValue ? $"file={file},line={v.Line}" : $"file={file}")
+                : string.Empty;
+
+            var prefix = location.Length > 0 ? $"::{level} {location}::" : $"::{level}::";
+
+            // GitHub annotations must go to stdout without Spectre markup
+            Console.WriteLine($"{prefix}[{v.RuleId}] {v.Message}");
+        }
+    }
 }

@@ -20,18 +20,19 @@ public sealed class ArchitectureAnalyzer
     {
         var absolutePath = Path.GetFullPath(projectPath);
         var (config, configPath) = ArchConfigLoader.Load(absolutePath);
-        var types = _parser.Parse(absolutePath);
+        var (types, methods) = _parser.Parse(absolutePath);
 
         var violations = _rules
-            .SelectMany(rule => rule.Analyze(types, config))
+            .SelectMany(rule => rule.Analyze(types, methods, config))
             .ToList();
 
         return new AnalysisResult
         {
             ProjectPath = absolutePath,
-            Types = types,
-            Violations = violations,
-            ConfigPath = configPath,
+            Types       = types,
+            Methods     = methods,
+            Violations  = violations,
+            ConfigPath  = configPath,
         };
     }
 }

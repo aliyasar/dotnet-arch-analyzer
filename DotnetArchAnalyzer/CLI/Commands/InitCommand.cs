@@ -25,14 +25,33 @@ public sealed class InitCommand
 
           // Rule severity: "error" | "warning" | "info" | "off"
           "rules": {
-            "arch/layer-violation":     "warning",
-            "arch/circular-dependency": "error",
-            "arch/high-coupling":       "warning"
+            // Architecture rules
+            "arch/layer-violation":       "warning",
+            "arch/circular-dependency":   "error",
+            "arch/high-coupling":         "warning",
+
+            // Style / naming conventions
+            "style/interface-prefix":     "warning",
+            "style/async-suffix":         "warning",
+            "style/no-empty-catch":       "warning",
+            "style/namespace-match":      "warning",
+
+            // Complexity / size metrics
+            "complexity/method-length":   "warning",
+            "complexity/class-length":    "warning",
+            "complexity/parameter-count": "warning",
+            "complexity/cyclomatic":      "warning",
+            "complexity/nesting-depth":   "warning"
           },
 
           // Numeric thresholds for rules that support them
           "thresholds": {
-            "arch/high-coupling": 10
+            "arch/high-coupling":         10,
+            "complexity/method-length":   30,
+            "complexity/class-length":    300,
+            "complexity/parameter-count": 5,
+            "complexity/cyclomatic":      10,
+            "complexity/nesting-depth":   4
           }
         }
         """;

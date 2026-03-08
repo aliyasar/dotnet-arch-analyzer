@@ -55,7 +55,7 @@ public sealed class LayerViolationRule : IArchRule
         { (3, 2), ViolationSeverity.Warning }, // Presentation → Infrastructure (skipping Application)
     };
 
-    public IEnumerable<AnalysisViolation> Analyze(IReadOnlyList<TypeInfo> types, ArchConfig config)
+    public IEnumerable<AnalysisViolation> Analyze(IReadOnlyList<TypeInfo> types, IReadOnlyList<MethodInfo> methods, ArchConfig config)
     {
         if (!config.IsRuleEnabled(RuleId)) yield break;
 

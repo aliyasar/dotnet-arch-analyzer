@@ -12,7 +12,7 @@ public sealed class CircularDependencyRule : IArchRule
 {
     public string RuleId => "arch/circular-dependency";
 
-    public IEnumerable<AnalysisViolation> Analyze(IReadOnlyList<TypeInfo> types, ArchConfig config)
+    public IEnumerable<AnalysisViolation> Analyze(IReadOnlyList<TypeInfo> types, IReadOnlyList<MethodInfo> methods, ArchConfig config)
     {
         if (!config.IsRuleEnabled(RuleId)) yield break;
 
