@@ -28,6 +28,10 @@ Requires [.NET 8 SDK](https://dotnet.microsoft.com/download) or later.
 
 ## Quick Start
 
+<p align="center">
+  <img src="assets/demo.png" width="600">
+</p>
+
 ```bash
 # Analyze the current directory
 dotnet-arch analyze .
