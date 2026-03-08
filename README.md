@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="https://img.shields.io/badge/.NET-8%2B-purple">
+  <img src="https://img.shields.io/badge/analysis-Roslyn-orange">
+  <img src="https://img.shields.io/badge/license-MIT-limegreen">
+</p>
+
 # dotnet-arch
 
 > ESLint-style architecture analyzer for .NET projects
